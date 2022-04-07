@@ -9,25 +9,69 @@ function App() {
   const [longitude, setLongitude] = useState(-81.23);
   const [units, setUnits] = useState("metric");
   const [language, setLanguage] = useState("en");
+
   const weatherApi = async () => {
     const { data } = await axios.get(
       // `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=${units}&lang=${language}`
       `http://api.openweathermap.org/data/2.5/onecall?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=${units}&lang=${language}`
     );
     // console.log(data.daily);
+    console.log(data);
     setDataList([...data.daily]);
     console.log(datalist);
   };
+  useEffect(() => {
+    weatherApi();
+    //es-lint disable react-hooks/exhaustive-deps
+  }, []);
 
   const submitFunction = () => {
     weatherApi();
   };
 
+  const getLocation = () => {
+    let opts = {
+      enableHighAccuracy: true,
+      timeout: 10000, //10 seconds
+      maximumAge: 1000 * 60 * 5, //5minutes
+    };
+    navigator.geolocation.getCurrentPosition(showPosition, showError, opts);
+  };
+  function showPosition(position) {
+    console.log(position);
+    setLatitude(position.coords.latitude.toFixed(2));
+    setLongitude(position.coords.longitude.toFixed(2));
+  }
+  function showError(error) {
+    console.log(error);
+    console.log(error.code);
+    console.log(error.message);
+    switch (error.code) {
+      case error.PERMISSION_DENIED:
+        console.log("User denied the request for Geolocation");
+        break;
+      case error.TIMEOUT:
+        console.log("The request to get user location timed out.");
+        break;
+      case error.UNKNOWN_ERROR:
+        console.log("An unknown error occured.");
+        break;
+    }
+  }
   return (
     <div className="app">
-      <input type="number" onChange={(e) => setLatitude(e.target.value)} />
-      <input type="number" onChange={(e) => setLongitude(e.target.value)} />
+      <input
+        type="number"
+        value={latitude}
+        onChange={(e) => setLatitude(e.target.value)}
+      />
+      <input
+        type="number"
+        value={longitude}
+        onChange={(e) => setLongitude(e.target.value)}
+      />
       <button onClick={submitFunction}>Submit</button>
+      <button onClick={getLocation}>Location</button>
       <div>
         {datalist?.map((item, index) => {
           const fulldate = new Date(item.dt * 1000).toDateString();

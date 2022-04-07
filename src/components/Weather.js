@@ -6,6 +6,7 @@ function Weather({ datalist }) {
       <img
         src={`http://openweathermap.org/img/wn/${datalist?.weather[0].icon}@4x.png`}
       />
+      
     </div>
   );
 }
