@@ -1,15 +1,15 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import "./App.css";
-import Weather from "./components/Weather";
-import API_KEY from "./keys";
+// import API_KEY from "./keys";
 function App() {
   const [datalist, setDataList] = useState();
   const [latitude, setLatitude] = useState(42.98);
   const [longitude, setLongitude] = useState(-81.23);
   const [units, setUnits] = useState("metric");
   const [language, setLanguage] = useState("en");
-
+  const [temperature, setTemperature] = useState("hello");
+  const API_KEY = process.env.REACT_APP_WEATHER_API;
   const weatherApi = async () => {
     const { data } = await axios.get(
       // `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=${units}&lang=${language}`
@@ -22,7 +22,7 @@ function App() {
   };
   useEffect(() => {
     weatherApi();
-    //es-lint disable react-hooks/exhaustive-deps
+    //eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const submitFunction = () => {
@@ -32,7 +32,7 @@ function App() {
   const getLocation = () => {
     let opts = {
       enableHighAccuracy: true,
-      timeout: 10000, //10 seconds
+      timeout: 1000 * 10, //10 seconds
       maximumAge: 1000 * 60 * 5, //5minutes
     };
     navigator.geolocation.getCurrentPosition(showPosition, showError, opts);
@@ -56,6 +56,8 @@ function App() {
       case error.UNKNOWN_ERROR:
         console.log("An unknown error occured.");
         break;
+      default:
+        console.log(error);
     }
   }
   return (
@@ -77,19 +79,9 @@ function App() {
           const fulldate = new Date(item.dt * 1000).toDateString();
           const sunrise = new Date(item.sunrise * 1000).toTimeString();
           const sunset = new Date(item.sunset * 1000).toTimeString();
-          const getHours = new Date(item.dt * 1000).getHours();
+          const getHours = new Date().getHours();
           console.log(getHours);
-          let temperature;
-          console.log(temperature);
-          if (6 < getHours < 9) {
-            temperature = item.temp.morn;
-          } else if (9 < getHours < 17) {
-            temperature = item.temp.day;
-          } else if (17 < getHours < 20) {
-            temperature = item.temp.eve;
-          } else if (20 < getHours < 6) {
-            temperature = item.temp.night;
-          }
+
           let feels_like;
           if (6 < getHours < 9) {
             feels_like = item.feels_like.morn;
@@ -126,6 +118,9 @@ function App() {
                 </div>*/}
                 <div>
                   <h3>{item.weather[0]?.main}</h3>
+                  <div>
+                    <b>{fulldate}</b>
+                  </div>
                   <div>
                     <b>Temperature:</b> {temperature}&deg;C
                   </div>
